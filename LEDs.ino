@@ -22,15 +22,37 @@ const uint8_t gamma[] = {
   177,180,182,184,186,189,191,193,196,198,200,203,205,208,210,213,
   215,218,220,223,225,228,231,233,236,239,241,244,247,249,252,255 };
 
+bool enabled = true;
+float intensity = 0.0f;
+const uint8_t red = 255, green = 170, blue = 90;
+
 void setup() {
+	Particle.function("switch", switchState);
+	pinMode(RED, OUTPUT);
     pinMode(GREEN, OUTPUT);
-    pinMode(RED, OUTPUT);
     pinMode(BLUE, OUTPUT);
-	setColor(255, 197, 143);
+	//setColor(255, 197, 143);
+	//setColor(255, 147, 41);
+	//setColor(255, 170, 90);
 }
 
 void loop() {
+	if (enabled) {
+		if (intensity <= 0.99) {
+			intensity += 0.01;
+			setColor(red * intensity, green * intensity, blue * intensity);
+		}
+	} else {
+		if (intensity > 0.0) {
+			intensity -= 0.01;
+			setColor(red * intensity, green * intensity, blue * intensity);
+		}
+	}
+	delay(10);
+}
 
+int switchState(String command) {
+	enabled = !enabled;
 }
 
 void setColor(uint8_t red, uint8_t green, uint8_t blue) {
