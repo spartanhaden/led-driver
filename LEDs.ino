@@ -75,6 +75,7 @@ void checkTime() {
 
 int switchState(String command) {
 	enabled = !enabled;
+	return enabled;
 }
 
 void setColor(uint8_t red, uint8_t green, uint8_t blue) {
