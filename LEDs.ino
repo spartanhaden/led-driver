@@ -23,7 +23,7 @@ const uint8_t gamma[] = {
   215,218,220,223,225,228,231,233,236,239,241,244,247,249,252,255 };
 
 bool enabled = true;
-float intensity = 0.0f;
+float brightness = 0.0f;
 const uint8_t red = 255, green = 170, blue = 90;
 SYSTEM_MODE(SEMI_AUTOMATIC);
 
@@ -31,9 +31,9 @@ void setup() {
 	pinMode(RED, OUTPUT);
     pinMode(GREEN, OUTPUT);
     pinMode(BLUE, OUTPUT);
-	while (intensity <= 0.99) {
-		intensity += 0.01;
-		setColor(red * intensity, green * intensity, blue * intensity);
+	while (brightness <= 0.99) {
+		brightness += 0.01;
+		setColor(red * brightness, green * brightness, blue * brightness);
 		delay(10);
 	}
 	Particle.connect();
@@ -42,14 +42,14 @@ void setup() {
 
 void loop() {
 	if (enabled) {
-		if (intensity <= 0.99) {
-			intensity += 0.01;
-			setColor(red * intensity, green * intensity, blue * intensity);
+		if (brightness <= 0.99) {
+			brightness += 0.01;
+			setColor(red * brightness, green * brightness, blue * brightness);
 		}
 	} else {
 		if (intensity > 0.0) {
 			intensity -= 0.01;
-			setColor(red * intensity, green * intensity, blue * intensity);
+			setColor(red * brightness, green * brightness, blue * brightness);
 		}
 	}
 	delay(10);
