@@ -44,19 +44,25 @@ void setup() {
 }
 
 void loop() {
+	Particle.process();
+	checkLEDs();
+	checkTime();
+}
+
+void checkLEDs() {
 	if (enabled) {
 		if (brightness <= 0.99) {
 			brightness += 0.01;
 			setColor(red * brightness, green * brightness, blue * brightness);
+			delay(10);
 		}
 	} else {
-		if (intensity > 0.0) {
-			intensity -= 0.01;
+		if (brightness > 0.0) {
+			brightness -= 0.01;
 			setColor(red * brightness, green * brightness, blue * brightness);
+			delay(10);
 		}
 	}
-	delay(10);
-	checkTime();
 }
 
 void checkTime() {
