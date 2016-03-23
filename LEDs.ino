@@ -25,15 +25,19 @@ const uint8_t gamma[] = {
 bool enabled = true;
 float intensity = 0.0f;
 const uint8_t red = 255, green = 170, blue = 90;
+SYSTEM_MODE(SEMI_AUTOMATIC);
 
 void setup() {
-	Particle.function("switch", switchState);
 	pinMode(RED, OUTPUT);
     pinMode(GREEN, OUTPUT);
     pinMode(BLUE, OUTPUT);
-	//setColor(255, 197, 143);
-	//setColor(255, 147, 41);
-	//setColor(255, 170, 90);
+	while (intensity <= 0.99) {
+		intensity += 0.01;
+		setColor(red * intensity, green * intensity, blue * intensity);
+		delay(10);
+	}
+	Particle.connect();
+	Particle.function("switch", switchState);
 }
 
 void loop() {
