@@ -1,8 +1,9 @@
 #define GREEN   D2
 #define RED     D1
 #define BLUE    D0
-
 #define REFRESH_RATE 1000
+#define ONE_DAY_MILLIS (24 * 60 * 60 * 1000)
+
 
 const uint8_t gamma[] = {
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -25,6 +26,8 @@ const uint8_t gamma[] = {
 bool enabled = true;
 float brightness = 0.0f;
 const uint8_t red = 255, green = 170, blue = 90;
+unsigned long lastSync = millis();
+
 SYSTEM_MODE(SEMI_AUTOMATIC);
 
 void setup() {
@@ -53,6 +56,15 @@ void loop() {
 		}
 	}
 	delay(10);
+	checkTime();
+}
+
+void checkTime() {
+	if (millis() - lastSync > ONE_DAY_MILLIS) {
+		// Request time synchronization from the Particle Cloud once a day.
+		Particle.syncTime();
+		lastSync = millis();
+	}
 }
 
 int switchState(String command) {
