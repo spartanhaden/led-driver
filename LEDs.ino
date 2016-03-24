@@ -44,6 +44,7 @@ void setup() {
 }
 
 void loop() {
+	Particle.process();
 	checkLEDs();
 	checkTime();
 }
