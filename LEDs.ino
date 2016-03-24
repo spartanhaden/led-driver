@@ -24,7 +24,7 @@ const uint8_t gamma[] = {
   215,218,220,223,225,228,231,233,236,239,241,244,247,249,252,255 };
 
 bool enabled = true;
-float brightness = 0.0f;
+double brightness = 0.0f;
 const uint8_t red = 255, green = 170, blue = 90;
 unsigned long lastSync = millis();
 
@@ -34,7 +34,7 @@ void setup() {
 	pinMode(RED, OUTPUT);
     pinMode(GREEN, OUTPUT);
     pinMode(BLUE, OUTPUT);
-	while (brightness <= 0.99) {
+	while (brightness <= 1.00) {
 		brightness += 0.01;
 		setColor(red * brightness, green * brightness, blue * brightness);
 		delay(10);
@@ -44,24 +44,25 @@ void setup() {
 }
 
 void loop() {
-	Particle.process();
 	checkLEDs();
 	checkTime();
 }
 
 void checkLEDs() {
 	if (enabled) {
-		if (brightness <= 0.99) {
+		if (brightness <= 1.00) {
 			brightness += 0.01;
 			setColor(red * brightness, green * brightness, blue * brightness);
 			delay(10);
 		}
+		RGB.brightness(255);
 	} else {
 		if (brightness > 0.0) {
 			brightness -= 0.01;
 			setColor(red * brightness, green * brightness, blue * brightness);
 			delay(10);
 		}
+		RGB.brightness(1);
 	}
 }
 
