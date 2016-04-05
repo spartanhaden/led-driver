@@ -23,7 +23,7 @@ const uint8_t gamma[] = {
   177,180,182,184,186,189,191,193,196,198,200,203,205,208,210,213,
   215,218,220,223,225,228,231,233,236,239,241,244,247,249,252,255 };
 
-bool enabled = true;
+uint8_t state = 1;
 double brightness = 0.0f;
 const uint8_t red = 255, green = 170, blue = 90;
 unsigned long lastSync = millis();
@@ -50,15 +50,22 @@ void loop() {
 }
 
 void checkLEDs() {
-	if (enabled) {
+	if (state == 0) {
+		if (brightness > 0.0) {
+			brightness -= 0.01;
+			setColor(red * brightness, green * brightness, blue * brightness);
+			delay(10);
+		}
+		RGB.brightness(1);
+	} else if (state == 1) {
 		if (brightness <= 1.00) {
 			brightness += 0.01;
 			setColor(red * brightness, green * brightness, blue * brightness);
 			delay(10);
 		}
 		RGB.brightness(255);
-	} else {
-		if (brightness > 0.0) {
+	} else if (state == 2) {
+		if (brightness > 0.2) {
 			brightness -= 0.01;
 			setColor(red * brightness, green * brightness, blue * brightness);
 			delay(10);
@@ -76,8 +83,18 @@ void checkTime() {
 }
 
 int switchState(String command) {
-	enabled = !enabled;
-	return enabled;
+	if (state == 0) {
+		state = 1;
+	} else if (state == 1) {
+		if (Time.hour() >= 1 && Time.hour() <= 7) {
+			state = 2;
+		} else {
+			state = 0;
+		}
+	} else {
+		state = 0;
+	}
+	return state;
 }
 
 void setColor(uint8_t red, uint8_t green, uint8_t blue) {
