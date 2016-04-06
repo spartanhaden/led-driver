@@ -24,7 +24,7 @@ const uint8_t gamma[] = {
   215,218,220,223,225,228,231,233,236,239,241,244,247,249,252,255 };
 
 uint8_t state = 1;
-double brightness = 0.0f;
+double brightness = 0.0;
 const uint8_t red = 255, green = 170, blue = 90;
 unsigned long lastSync = millis();
 
@@ -58,7 +58,7 @@ void checkLEDs() {
 		}
 		RGB.brightness(1);
 	} else if (state == 1) {
-		if (brightness <= 1.00) {
+		if (brightness < 1.00) {
 			brightness += 0.01;
 			setColor(red * brightness, green * brightness, blue * brightness);
 			delay(10);
@@ -86,7 +86,7 @@ int switchState(String command) {
 	if (state == 0) {
 		state = 1;
 	} else if (state == 1) {
-		if (Time.hour() >= 1 && Time.hour() <= 7) {
+		if (Time.hour() >= 2 && Time.hour() <= 7) {
 			state = 2;
 		} else {
 			state = 0;
