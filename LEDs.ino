@@ -41,6 +41,8 @@ void setup() {
 	}
 	Particle.connect();
 	Particle.function("switch", switchState);
+	// Set to Eastern time zone.
+	Time.zone(-4);
 }
 
 void loop() {
