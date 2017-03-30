@@ -2,10 +2,9 @@
 #define RED     D1
 #define BLUE    D0
 #define REFRESH_RATE 1000
-#define ONE_DAY_MILLIS (24 * 60 * 60 * 1000)
 
-
-const uint8_t gamma[] = {
+// Gamma corrected LED values
+const uint32_t gamma_vals[] = {
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,
     1,  1,  1,  1,  1,  1,  1,  1,  1,  2,  2,  2,  2,  2,  2,  2,
@@ -23,84 +22,81 @@ const uint8_t gamma[] = {
   177,180,182,184,186,189,191,193,196,198,200,203,205,208,210,213,
   215,218,220,223,225,228,231,233,236,239,241,244,247,249,252,255 };
 
-uint8_t state = 1;
 double brightness = 0.0;
-const uint8_t red = 255, green = 170, blue = 90;
-unsigned long lastSync = millis();
+double target = 1.0;
 
+// Values I use at night for a soft light
+const uint8_t red = 255, green = 170, blue = 90;
+
+// Causes device to turn on lights before connecting to Wi-Fi
 SYSTEM_MODE(SEMI_AUTOMATIC);
 
 void setup() {
+	// Set the correct pins to outputs
 	pinMode(RED, OUTPUT);
-    pinMode(GREEN, OUTPUT);
-    pinMode(BLUE, OUTPUT);
+	pinMode(GREEN, OUTPUT);
+	pinMode(BLUE, OUTPUT);
+
+	// Initial turn on of lights.
 	while (brightness <= 1.00) {
 		brightness += 0.01;
 		setColor(red * brightness, green * brightness, blue * brightness);
 		delay(10);
 	}
+
+	// Connect the particle to Wi-Fi and setup remote control
 	Particle.connect();
 	Particle.function("switch", switchState);
-	// Set to Eastern time zone.
-	Time.zone(-4);
 }
 
 void loop() {
 	Particle.process();
 	checkLEDs();
-	checkTime();
 }
 
+// Handles checking of the LED state
 void checkLEDs() {
-	if (state == 0) {
-		if (brightness > 0.0) {
-			brightness -= 0.01;
-			setColor(red * brightness, green * brightness, blue * brightness);
-			delay(10);
-		}
-		RGB.brightness(1);
-	} else if (state == 1) {
-		if (brightness < 1.00) {
-			brightness += 0.01;
-			setColor(red * brightness, green * brightness, blue * brightness);
-			delay(10);
-		}
-		RGB.brightness(255);
-	} else if (state == 2) {
-		if (brightness > 0.2) {
-			brightness -= 0.01;
-			setColor(red * brightness, green * brightness, blue * brightness);
-			delay(10);
-		}
-		RGB.brightness(1);
+	if (brightness < target - 0.005) {
+		brightness += 0.01;
+		setColor(red * brightness, green * brightness, blue * brightness);
+		RGB.brightness(int(brightness * 254) + 1);
+		delay(10);
+	} else if (brightness > target + 0.005) {
+		brightness -= 0.01;
+		setColor(red * brightness, green * brightness, blue * brightness);
+		RGB.brightness(int(brightness * 254) + 1);
+		delay(10);
 	}
 }
 
-void checkTime() {
-	if (millis() - lastSync > ONE_DAY_MILLIS) {
-		// Request time synchronization from the Particle Cloud once a day.
-		Particle.syncTime();
-		lastSync = millis();
-	}
-}
-
+// Takes input to set the lights
 int switchState(String command) {
-	if (state == 0) {
-		state = 1;
-	} else if (state == 1) {
-		if (Time.hour() >= 2 && Time.hour() <= 7) {
-			state = 2;
-		} else {
-			state = 0;
-		}
-	} else {
-		state = 0;
+	int input = atoi(command);
+
+	// Toggles the lights if input is -1
+	if (input == -1) {
+		if (target < 0.3)
+			target = 1.0;
+		else
+			target = 0.0;
+		return 1;
 	}
-	return state;
+
+	// Constrain the input value between 0 and 100
+	if (input < 0)
+		input = 0;
+	else if (input > 100)
+		input = 100;
+
+	// Convert to 0.0 to 1.0
+	target = atof(command) / 100.0;
+
+	return 1;
 }
 
+// Sets the color of the lights to the gamma corrected value for the given colors
 void setColor(uint8_t red, uint8_t green, uint8_t blue) {
-    analogWrite(RED, gamma[red], REFRESH_RATE);
-	analogWrite(GREEN, gamma[green], REFRESH_RATE);
-    analogWrite(BLUE, gamma[blue], REFRESH_RATE);
+	analogWrite(RED, gamma_vals[red], REFRESH_RATE);
+	analogWrite(GREEN, gamma_vals[green], REFRESH_RATE);
+	analogWrite(BLUE, gamma_vals[blue], REFRESH_RATE);
 }
