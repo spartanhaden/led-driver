@@ -1,4 +1,4 @@
-# Bedroom LEDs
+# LED driver
 This is the code that drives the RGB LEDs in my bedroom. I am currently using a [Particle Photon](https://docs.particle.io/quickstart/boron/) and a custom designed PCB to drive a string of 12V LEDs.
 
 ## Breadboard
